@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Todo List</title>
+  <style>
+    body { font-family: Arial; max-width: 400px; margin: 20px auto; }
+    .todo-input { width: 70%; padding: 8px; }
+    .todo-list { list-style: none; padding: 0; }
+    .todo-item { display: flex; align-items: center; margin: 8px 0; }
+    .delete-btn { margin-left: auto; color: red; cursor: pointer; }
+    .completed { text-decoration: line-through; opacity: 0.7; }
+  </style>
+</head>
+<body>
+  <h1>Todo List</h1>
+  <form id="todoForm">
+    <input type="text" class="todo-input" placeholder="Add a task..." required>
+    <button type="submit">Add</button>
+  </form>
+  <ul class="todo-list" id="todoList"></ul>
+
+  <script>
+    const form = document.getElementById('todoForm');
+    const input = document.querySelector('.todo-input');
+    const list = document.getElementById('todoList');
+    let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+    function renderTodos() {
+      list.innerHTML = '';
+      todos.forEach((todo, index) => {
+        const li = document.createElement('li');
+        li.className = 'todo-item';
+        li.innerHTML = `
+          <input type="checkbox" ${todo.completed ? 'checked' : ''}>
+          <span class="${todo.completed ? 'completed' : ''}">${todo.text}</span>
+          <span class="delete-btn">🗑️</span>
+        `;
+        list.appendChild(li);
+
+        // Toggle completed
+        li.querySelector('input').addEventListener('change', () => {
+          todos[index].completed = !todos[index].completed;
+          saveTodos();
+          renderTodos();
+        });
+
+        // Delete todo
+        li.querySelector('.delete-btn').addEventListener('click', () => {
+          todos.splice(index, 1);
+          saveTodos();
+          renderTodos();
+        });
+      });
+    }
+
+    function saveTodos() {
+      localStorage.setItem('todos', JSON.stringify(todos));
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (input.value.trim()) {
+        todos.push({ text: input.value.trim(), completed: false });
+        saveTodos();
+        renderTodos();
+        input.value = '';
+      }
+    });
+
+    renderTodos();
+  </script>
+</body>
+</html>

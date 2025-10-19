@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quiz Game</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 20px auto; padding: 20px; }
+    .question { font-size: 20px; margin-bottom: 20px; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    button { padding: 10px; font-size: 16px; cursor: pointer; }
+    .score { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div id="quizContainer">
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="score" id="score"></div>
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        question: "What is 2 + 2?",
+        options: ["3", "4", "5"],
+        correct: "4"
+      },
+      {
+        question: "What is the capital of France?",
+        options: ["London", "Berlin", "Paris"],
+        correct: "Paris"
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    const quizContainer = document.getElementById('quizContainer');
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const scoreEl = document.getElementById('score');
+
+    function loadQuestion() {
+      const question = quizData[currentQuestion];
+      questionEl.textContent = question.question;
+      optionsEl.innerHTML = '';
+     
+      question.options.forEach(option => {
+        const button = document.createElement('button');
+        button.textContent = option;
+        button.onclick = () => checkAnswer(option);
+        optionsEl.appendChild(button);
+      });
+    }
+
+    function checkAnswer(selected) {
+      if (selected === quizData[currentQuestion].correct) {
+        score++;
+      }
+     
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      quizContainer.innerHTML = `
+        <h2>Quiz Complete!</h2>
+        <div class="score">Your score: ${score}/${quizData.length}</div>
+      `;
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

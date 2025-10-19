@@ -1,0 +1,31 @@
+body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(48, 48, 48, 0.534);
+}
+.container{
+    display: flex;
+    flex-direction: column;
+    border: 10px solid rgb(172, 167, 167);
+    border-radius: 20px;
+    height: 650px;
+    width: 800px;
+    justify-content: center;
+    align-items: center;
+}
+a{
+    color: whitesmoke;
+    text-decoration: none;
+    font-weight: bold;
+}
+h6,a,h1{
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: 40px;
+}
+h1{
+    margin-bottom: 20px;
+}
+a:hover{
+    color: darkslategrey;
+}

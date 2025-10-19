@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kingdom Guardians - Tower Defense</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+       
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            overflow-x: hidden;
+        }
+       
+        .game-container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 20px;
+        }
+       
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            margin-bottom: 20px;
+        }
+       
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(to right, #ffd700, #ff8c00);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+       
+        .subtitle {
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+       
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+       
+        .game-board {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: #0d3b66;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+       
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+       
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 30, 60, 0.5);
+            border-radius: 10px;
+        }
+       
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 5px 0;
+        }
+       
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a0c4ff;
+        }
+       
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+       
+        button {
+            flex: 1;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: #0f0c29;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 100, 255, 0.4);
+        }
+       
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 200, 255, 0.6);
+        }
+       
+        button:active {
+            transform: translateY(1px);
+        }
+       
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+       
+        .tower-shop {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+       
+        .tower-shop h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 10px;
+        }
+       
+        .tower-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+       
+        .tower-option {
+            background: rgba(30, 60, 100, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+       
+        .tower-option:hover {
+            transform: translateY(-5px);
+            background: rgba(50, 100, 150, 0.7);
+            border-color: #ffd700;
+        }
+       
+        .tower-option.selected {
+            border-color: #ffd700;
+            background: rgba(70, 130, 180, 0.8);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+       
+        .tower-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #ffd700;
+            border: 2px solid #ffd700;
+        }
+       
+        .tower-name {
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+       
+        .tower-cost {
+            color: #a0c4ff;
+            font-size: 0.9rem;
+        }
+       
+        .tower-stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #a0c4ff;
+        }
+       
+        .upgrades {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+       
+        .upgrades h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 10px;
+        }
+       
+        .wave-info {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            text-align: center;
+        }
+       
+        .wave-info h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+       
+        .wave-progress {
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+       
+        .wave-progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #ff8c00, #ffd700);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+       
+        .enemies-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+       
+        .enemy-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid;
+        }
+       
+        .game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 100;
+            border: 3px solid #ffd700;
+            display: none;
+        }
+       
+        .game-message h2 {
+            font-size: 2.5rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+       
+        .game-message p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #a0c4ff;
+        }
+       
+        .tower {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: white;
+            z-index: 10;
+            transform: translate(-50%, -50%);
+            border: 2px solid;
+        }
+       
+        .tower.archer {
+            background: rgba(65, 105, 225, 0.8);
+            border-color: #4169e1;
+        }
+       
+        .tower.mage {
+            background: rgba(138, 43, 226, 0.8);
+            border-color: #8a2be2;
+        }
+       
+        .tower.cannon {
+            background: rgba(178, 34, 34, 0.8);
+            border-color: #b22222;
+        }
+       
+        .tower.ice {
+            background: rgba(64, 224, 208, 0.8);
+            border-color: #40e0d0;
+        }
+       
+        .tower-range {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 5;
+        }
+       
+        .path {
+            position: absolute;
+            background: #5d4037;
+            z-index: 1;
+        }
+       
+        .enemy {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: white;
+            z-index: 8;
+            transform: translate(-50%, -50%);
+            transition: left 0.1s linear, top 0.1s linear;
+        }
+       
+        .projectile {
+            position: absolute;
+            border-radius: 50%;
+            z-index: 7;
+        }
+       
+        @media (max-width: 1000px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+           
+            .game-board {
+                height: 500px;
+            }
+        }
+       
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+           
+            .controls {
+                flex-direction: column;
+            }
+           
+            .tower-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+       
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+       
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1><i class="fas fa-fort-awesome"></i> KINGDOM GUARDIANS</h1>
+            <p class="subtitle">Defend your kingdom from invading enemies!</p>
+        </header>
+       
+        <div class="game-area">
+            <div class="game-board" id="game-board">
+                <!-- Game elements will be rendered here -->
+                <div class="game-message" id="game-message">
+                    <h2 id="message-title">Game Over</h2>
+                    <p id="message-content">Your kingdom has fallen to the invaders.</p>
+                    <button id="restart-btn">Restart Game</button>
+                </div>
+            </div>
+           
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">Gold</div>
+                    <div class="stat-value" id="gold">100</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Health</div>
+                    <div class="stat-value" id="health">100</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Wave</div>
+                    <div class="stat-value" id="wave">1</div>
+                </div>
+            </div>
+           
+            <div class="controls">
+                <button id="start-wave-btn"><i class="fas fa-play"></i> Start Wave</button>
+                <button id="upgrade-btn"><i class="fas fa-arrow-up"></i> Upgrade</button>
+                <button id="sell-btn"><i class="fas fa-coins"></i> Sell</button>
+            </div>
+        </div>
+       
+        <div class="sidebar">
+            <div class="tower-shop">
+                <h2><i class="fas fa-store"></i> Tower Shop</h2>
+                <div class="tower-options">
+                    <div class="tower-option" data-tower="archer">
+                        <div class="tower-icon"><i class="fas fa-crosshairs"></i></div>
+                        <div class="tower-name">Archer Tower</div>
+                        <div class="tower-cost">Cost: 50g</div>
+                        <div class="tower-stats">
+                            <span><i class="fas fa-bullseye"></i> Range: 150px</span>
+                            <span><i class="fas fa-bolt"></i> Dmg: 10</span>
+                        </div>
+                    </div>
+                    <div class="tower-option" data-tower="mage">
+                        <div class="tower-icon"><i class="fas fa-hat-wizard"></i></div>
+                        <div class="tower-name">Mage Tower</div>
+                        <div class="tower-cost">Cost: 100g</div>
+                        <div class="tower-stats">
+                            <span><i class="fas fa-bullseye"></i> Range: 120px</span>
+                            <span><i class="fas fa-bolt"></i> Dmg: 25</span>
+                        </div>
+                    </div>
+                    <div class="tower-option" data-tower="cannon">
+                        <div class="tower-icon"><i class="fas fa-bomb"></i></div>
+                        <div class="tower-name">Cannon Tower</div>
+                        <div class="tower-cost">Cost: 150g</div>
+                        <div class="tower-stats">
+                            <span><i class="fas fa-bullseye"></i> Range: 100px</span>
+                            <span><i class="fas fa-bolt"></i> Dmg: 40</span>
+                        </div>
+                    </div>
+                    <div class="tower-option" data-tower="ice">
+                        <div class="tower-icon"><i class="fas fa-snowflake"></i></div>
+                        <div class="tower-name">Ice Tower</div>
+                        <div class="tower-cost">Cost: 125g</div>
+                        <div class="tower-stats">
+                            <span><i class="fas fa-bullseye"></i> Range: 130px</span>
+                            <span><i class="fas fa-bolt"></i> Slow: 50%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="upgrades">
+                <h2><i class="fas fa-chart-line"></i> Tower Upgrades</h2>
+                <div class="tower-stats">
+                    <div id="selected-tower">No tower selected</div>
+                    <div id="upgrade-cost">-</div>
+                </div>
+                <div class="tower-stats">
+                    <span id="tower-level">Level: -</span>
+                    <span id="tower-damage">Dmg: -</span>
+                </div>
+            </div>
+           
+            <div class="wave-info">
+                <h2><i class="fas fa-wave-square"></i> Wave Info</h2>
+                <div class="wave-progress">
+                    <div class="wave-progress-bar" id="wave-progress"></div>
+                </div>
+                <div class="enemies-container" id="enemies-container">
+                    <!-- Enemy previews will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            gold: 100,
+            health: 100,
+            wave: 1,
+            gameOver: false,
+            waveActive: false,
+            towers: [],
+            enemies: [],
+            projectiles: [],
+            selectedTower: null,
+            path: [],
+            buildMode: false,
+            selectedTowerType: null
+        };
+
+        // Tower types
+        const towerTypes = {
+            archer: {
+                name: "Archer Tower",
+                cost: 50,
+                range: 150,
+                damage: 10,
+                fireRate: 1000, // ms
+                color: "#4169e1",
+                icon: "fas fa-crosshairs"
+            },
+            mage: {
+                name: "Mage Tower",
+                cost: 100,
+                range: 120,
+                damage: 25,
+                fireRate: 1500,
+                color: "#8a2be2",
+                icon: "fas fa-hat-wizard"
+            },
+            cannon: {
+                name: "Cannon Tower",
+                cost: 150,
+                range: 100,
+                damage: 40,
+                fireRate: 2000,
+                color: "#b22222",
+                icon: "fas fa-bomb"
+            },
+            ice: {
+                name: "Ice Tower",
+                cost: 125,
+                range: 130,
+                slow: 0.5, // 50% slow
+                fireRate: 1500,
+                color: "#40e0d0",
+                icon: "fas fa-snowflake"
+            }
+        };
+
+        // Enemy types
+        const enemyTypes = [
+            { name: "Goblin", health: 50, speed: 2, bounty: 10, color: "#32cd32", icon: "fas fa-running" },
+            { name: "Orc", health: 100, speed: 1.5, bounty: 20, color: "#228b22", icon: "fas fa-fist-raised" },
+            { name: "Troll", health: 200, speed: 1, bounty: 40, color: "#8b4513", icon: "fas fa-dragon" },
+            { name: "Dragon", health: 500, speed: 1.8, bounty: 100, color: "#ff4500", icon: "fas fa-dragon" }
+        ];
+
+        // Initialize game
+        function initGame() {
+            gameState.gold = 100;
+            gameState.health = 100;
+            gameState.wave = 1;
+            gameState.gameOver = false;
+            gameState.waveActive = false;
+            gameState.towers = [];
+            gameState.enemies = [];
+            gameState.projectiles = [];
+            gameState.selectedTower = null;
+            gameState.buildMode = false;
+            gameState.selectedTowerType = null;
+           
+            document.getElementById('gold').textContent = gameState.gold;
+            document.getElementById('health').textContent = gameState.health;
+            document.getElementById('wave').textContent = gameState.wave;
+            document.getElementById('game-message').style.display = 'none';
+           
+            createPath();
+            renderPath();
+            updateWaveInfo();
+           
+            // Reset tower selection
+            document.querySelectorAll('.tower-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+           
+            document.getElementById('selected-tower').textContent = "No tower selected";
+            document.getElementById('upgrade-cost').textContent = "-";
+            document.getElementById('tower-level').textContent = "Level: -";
+            document.getElementById('tower-damage').textContent = "Dmg: -";
+        }
+
+        // Create game path
+        function createPath() {
+            gameState.path = [
+                { x: 0, y: 200 },
+                { x: 200, y: 200 },
+                { x: 200, y: 400 },
+                { x: 400, y: 400 },
+                { x: 400, y: 100 },
+                { x: 600, y: 100 },
+                { x: 600, y: 300 },
+                { x: 800, y: 300 },
+                { x: 800, y: 500 },
+                { x: 1000, y: 500 }
+            ];
+        }
+
+        // Render path on game board
+        function renderPath() {
+            const gameBoard = document.getElementById('game-board');
+           
+            // Clear existing path
+            document.querySelectorAll('.path').forEach(el => el.remove());
+           
+            // Render path segments
+            for (let i = 0; i < gameState.path.length - 1; i++) {
+                const start = gameState.path[i];
+                const end = gameState.path[i + 1];
+               
+                const pathSegment = document.createElement('div');
+                pathSegment.className = 'path';
+               
+                if (start.x === end.x) {
+                    // Vertical path
+                    pathSegment.style.width = '40px';
+                    pathSegment.style.height = Math.abs(end.y - start.y) + 'px';
+                    pathSegment.style.left = (start.x - 20) + 'px';
+                    pathSegment.style.top = Math.min(start.y, end.y) + 'px';
+                } else {
+                    // Horizontal path
+                    pathSegment.style.width = Math.abs(end.x - start.x) + 'px';
+                    pathSegment.style.height = '40px';
+                    pathSegment.style.left = Math.min(start.x, end.x) + 'px';
+                    pathSegment.style.top = (start.y - 20) + 'px';
+                }
+               
+                gameBoard.appendChild(pathSegment);
+            }
+           
+            // Render castle
+            const castle = document.createElement('div');
+            castle.className = 'path';
+            castle.style.width = '80px';
+            castle.style.height = '80px';
+            castle.style.left = (gameState.path[gameState.path.length - 1].x - 40) + 'px';
+            castle.style.top = (gameState.path[gameState.path.length - 1].y - 40) + 'px';
+            castle.style.background = 'rgba(139, 69, 19, 0.8)';
+            castle.style.borderRadius = '10px';
+            castle.style.display = 'flex';
+            castle.style.justifyContent = 'center';
+            castle.style.alignItems = 'center';
+            castle.innerHTML = '<i class="fas fa-chess-rook" style="font-size: 40px; color: #ffd700;"></i>';
+            gameBoard.appendChild(castle);
+        }
+
+        // Update wave info
+        function updateWaveInfo() {
+            document.getElementById('wave').textContent = gameState.wave;
+            document.getElementById('wave-progress').style.width = '0%';
+           
+            const enemiesContainer = document.getElementById('enemies-container');
+            enemiesContainer.innerHTML = '';
+           
+            // Calculate enemies for this wave
+            const waveEnemies = calculateWaveEnemies();
+           
+            waveEnemies.forEach(enemy => {
+                const enemyPreview = document.createElement('div');
+                enemyPreview.className = 'enemy-preview';
+                enemyPreview.style.borderColor = enemyTypes[enemy.type].color;
+                enemyPreview.innerHTML = `<i class="${enemyTypes[enemy.type].icon}" style="color: ${enemyTypes[enemy.type].color};"></i>`;
+                enemiesContainer.appendChild(enemyPreview);
+            });
+        }
+
+        // Calculate enemies for current wave
+        function calculateWaveEnemies() {
+            const enemies = [];
+            const baseCount = 5 + gameState.wave * 2;
+           
+            for (let i = 0; i < baseCount; i++) {
+                // Higher waves have stronger enemies
+                let typeIndex = 0;
+                if (gameState.wave > 5) typeIndex = 3;
+                else if (gameState.wave > 3) typeIndex = 2;
+                else if (gameState.wave > 1) typeIndex = 1;
+               
+                enemies.push({
+                    type: typeIndex,
+                    health: enemyTypes[typeIndex].health * (1 + (gameState.wave - 1) * 0.2)
+                });
+            }
+           
+            return enemies;
+        }
+
+        // Start wave
+        function startWave() {
+            if (gameState.waveActive || gameState.gameOver) return;
+           
+            gameState.waveActive = true;
+            document.getElementById('start-wave-btn').disabled = true;
+           
+            const waveEnemies = calculateWaveEnemies();
+            let delay = 0;
+           
+            waveEnemies.forEach((enemy, index) => {
+                setTimeout(() => {
+                    spawnEnemy(enemy.type, enemy.health);
+                   
+                    // Update progress bar
+                    const progress = ((index + 1) / waveEnemies.length) * 100;
+                    document.getElementById('wave-progress').style.width = progress + '%';
+                }, delay);
+               
+                delay += 1500; // Spawn enemies every 1.5 seconds
+            });
+           
+            setTimeout(() => {
+                gameState.waveActive = false;
+                document.getElementById('start-wave-btn').disabled = false;
+                document.getElementById('start-wave-btn').textContent = "Start Wave " + (gameState.wave + 1);
+            }, delay + 5000);
+        }
+
+        // Spawn enemy
+        function spawnEnemy(type, health) {
+            const enemy = {
+                type: type,
+                health: health,
+                maxHealth: health,
+                position: 0, // Position on path (0-1)
+                x: gameState.path[0].x,
+                y: gameState.path[0].y,
+                element: null
+            };
+           
+            gameState.enemies.push(enemy);
+            renderEnemy(enemy);
+        }
+
+        // Render enemy
+        function renderEnemy(enemy) {
+            const gameBoard = document.getElementById('game-board');
+           
+            const enemyElement = document.createElement('div');
+            enemyElement.className = 'enemy';
+            enemyElement.style.left = enemy.x + 'px';
+            enemyElement.style.top = enemy.y + 'px';
+            enemyElement.style.background = enemyTypes[enemy.type].color;
+            enemyElement.style.borderColor = enemyTypes[enemy.type].color;
+            enemyElement.innerHTML = `<i class="${enemyTypes[enemy.type].icon}"></i>`;
+           
+            // Health bar
+            const healthBar = document.createElement('div');
+            healthBar.style.position = 'absolute';
+            healthBar.style.bottom = '-10px';
+            healthBar.style.left = '0';
+            healthBar.style.width = '100%';
+            healthBar.style.height = '5px';
+            healthBar.style.background = '#555';
+            healthBar.style.borderRadius = '2px';
+           
+            const healthFill = document.createElement('div');
+            healthFill.style.width = '100%';
+            healthFill.style.height = '100%';
+            healthFill.style.background = '#4caf50';
+            healthFill.style.borderRadius = '2px';
+            healthBar.appendChild(healthFill);
+           
+            enemyElement.appendChild(healthBar);
+            gameBoard.appendChild(enemyElement);
+           
+            enemy.element = enemyElement;
+            enemy.healthFill = healthFill;
+        }
+
+        // Update enemies
+        function updateEnemies() {
+            gameState.enemies.forEach(enemy => {
+                if (!enemy.element) return;
+               
+                // Move enemy along path
+                enemy.position += (enemyTypes[enemy.type].speed / 1000) * 16; // 16ms per frame
+               
+                if (enemy.position >= 1) {
+                    // Enemy reached the castle
+                    gameState.health -= 10;
+                    document.getElementById('health').textContent = gameState.health;
+                   
+                    // Remove enemy
+                    enemy.element.remove();
+                    gameState.enemies = gameState.enemies.filter(e => e !== enemy);
+                   
+                    // Check game over
+                    if (gameState.health <= 0) {
+                        gameState.health = 0;
+                        gameOver();
+                    }
+                   
+                    return;
+                }
+               
+                // Calculate position on path
+                const pathIndex = Math.floor(enemy.position * (gameState.path.length - 1));
+                const segmentPos = (enemy.position * (gameState.path.length - 1)) - pathIndex;
+               
+                const start = gameState.path[pathIndex];
+                const end = gameState.path[pathIndex + 1];
+               
+                enemy.x = start.x + (end.x - start.x) * segmentPos;
+                enemy.y = start.y + (end.y - start.y) * segmentPos;
+               
+                // Update element position
+                enemy.element.style.left = enemy.x + 'px';
+                enemy.element.style.top = enemy.y + 'px';
+               
+                // Update health bar
+                const healthPercent = (enemy.health / enemy.maxHealth) * 100;
+                enemy.healthFill.style.width = healthPercent + '%';
+               
+                if (healthPercent < 30) {
+                    enemy.healthFill.style.background = '#f44336';
+                } else if (healthPercent < 60) {
+                    enemy.healthFill.style.background = '#ff9800';
+                }
+            });
+        }
+
+        // Update towers
+        function updateTowers() {
+            gameState.towers.forEach(tower => {
+                if (!tower.lastShot || Date.now() - tower.lastShot > tower.fireRate) {
+                    // Find target enemy
+                    const target = findTargetForTower(tower);
+                   
+                    if (target) {
+                        // Shoot at target
+                        shootProjectile(tower, target);
+                        tower.lastShot = Date.now();
+                    }
+                }
+            });
+        }
+
+        // Find target for tower
+        function findTargetForTower(tower) {
+            // Find enemies in range
+            const enemiesInRange = gameState.enemies.filter(enemy => {
+                const dx = tower.x - enemy.x;
+                const dy = tower.y - enemy.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                return distance <= tower.range;
+            });
+           
+            if (enemiesInRange.length > 0) {
+                // Sort by position (furthest along path)
+                enemiesInRange.sort((a, b) => b.position - a.position);
+                return enemiesInRange[0];
+            }
+           
+            return null;
+        }
+
+        // Shoot projectile
+        function shootProjectile(tower, target) {
+            const projectile = {
+                tower: tower,
+                target: target,
+                x: tower.x,
+                y: tower.y,
+                element: null
+            };
+           
+            gameState.projectiles.push(projectile);
+            renderProjectile(projectile);
+        }
+
+        // Render projectile
+        function renderProjectile(projectile) {
+            const gameBoard = document.getElementById('game-board');
+           
+            const projectileElement = document.createElement('div');
+            projectileElement.className = 'projectile';
+            projectileElement.style.width = '10px';
+            projectileElement.style.height = '10px';
+            projectileElement.style.left = projectile.x + 'px';
+            projectileElement.style.top = projectile.y + 'px';
+            projectileElement.style.background = projectile.tower.color;
+           
+            gameBoard.appendChild(projectileElement);
+            projectile.element = projectileElement;
+        }
+
+        // Update projectiles
+        function updateProjectiles() {
+            gameState.projectiles.forEach(projectile => {
+                if (!projectile.element) return;
+               
+                // Move projectile toward target
+                const dx = projectile.target.x - projectile.x;
+                const dy = projectile.target.y - projectile.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+               
+                if (distance < 5) {
+                    // Hit target
+                    hitEnemy(projectile.target, projectile.tower);
+                    projectile.element.remove();
+                    gameState.projectiles = gameState.projectiles.filter(p => p !== projectile);
+                    return;
+                }
+               
+                // Move projectile
+                projectile.x += (dx / distance) * 10;
+                projectile.y += (dy / distance) * 10;
+               
+                // Update element position
+                projectile.element.style.left = projectile.x + 'px';
+                projectile.element.style.top = projectile.y + 'px';
+            });
+        }
+
+        // Hit enemy
+        function hitEnemy(enemy, tower) {
+            if (tower.type === 'ice') {
+                // Slow effect
+                enemy.speedModifier = enemy.speedModifier || 1;
+                enemy.speedModifier *= (1 - tower.slow);
+            } else {
+                // Damage
+                enemy.health -= tower.damage;
+               
+                if (enemy.health <= 0) {
+                    // Enemy killed
+                    gameState.gold += enemyTypes[enemy.type].bounty;
+                    document.getElementById('gold').textContent = gameState.gold;
+                   
+                    // Remove enemy
+                    enemy.element.remove();
+                    gameState.enemies = gameState.enemies.filter(e => e !== enemy);
+                }
+            }
+        }
+
+        // Game over
+        function gameOver() {
+            gameState.gameOver = true;
+            const message = document.getElementById('game-message');
+            message.style.display = 'block';
+            document.getElementById('message-title').textContent = "Game Over";
+            document.getElementById('message-content').textContent = "Your kingdom has fallen to the invaders.";
+        }
+
+        // Place tower
+        function placeTower(event) {
+            if (!gameState.buildMode || gameState.gameOver) return;
+           
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+           
+            // Check if placement is valid (not on path)
+            const onPath = gameState.path.some(point => {
+                return Math.abs(point.x - x) < 40 && Math.abs(point.y - y) < 40;
+            });
+           
+            if (onPath) return;
+           
+            // Check if enough gold
+            const towerType = towerTypes[gameState.selectedTowerType];
+            if (gameState.gold < towerType.cost) return;
+           
+            // Deduct gold
+            gameState.gold -= towerType.cost;
+            document.getElementById('gold').textContent = gameState.gold;
+           
+            // Create tower
+            const tower = {
+                type: gameState.selectedTowerType,
+                x: x,
+                y: y,
+                range: towerType.range,
+                damage: towerType.damage,
+                fireRate: towerType.fireRate,
+                color: towerType.color,
+                level: 1,
+                element: null,
+                rangeElement: null
+            };
+           
+            if (towerType.slow) {
+                tower.slow = towerType.slow;
+            }
+           
+            gameState.towers.push(tower);
+            renderTower(tower);
+           
+            // Exit build mode
+            gameState.buildMode = false;
+            gameState.selectedTowerType = null;
+            document.querySelectorAll('.tower-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+        }
+
+        // Render tower
+        function renderTower(tower) {
+            const gameBoard = document.getElementById('game-board');
+           
+            // Create tower element
+            const towerElement = document.createElement('div');
+            towerElement.className = 'tower ' + tower.type;
+            towerElement.style.left = tower.x + 'px';
+            towerElement.style.top = tower.y + 'px';
+            towerElement.style.background = tower.color;
+            towerElement.innerHTML = `<i class="${towerTypes[tower.type].icon}"></i>`;
+           
+            // Create range indicator
+            const rangeElement = document.createElement('div');
+            rangeElement.className = 'tower-range';
+            rangeElement.style.width = (tower.range * 2) + 'px';
+            rangeElement.style.height = (tower.range * 2) + 'px';
+            rangeElement.style.left = tower.x + 'px';
+            rangeElement.style.top = tower.y + 'px';
+            rangeElement.style.borderColor = tower.color;
+            rangeElement.style.display = 'none';
+           
+            gameBoard.appendChild(towerElement);
+            gameBoard.appendChild(rangeElement);
+           
+            tower.element = towerElement;
+            tower.rangeElement = rangeElement;
+           
+            // Add click event to select tower
+            towerElement.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectTower(tower);
+            });
+        }
+
+        // Select tower
+        function selectTower(tower) {
+            if (gameState.selectedTower) {
+                gameState.selectedTower.rangeElement.style.display = 'none';
+            }
+           
+            gameState.selectedTower = tower;
+            tower.rangeElement.style.display = 'block';
+           
+            // Update UI
+            document.getElementById('selected-tower').textContent = towerTypes[tower.type].name;
+            document.getElementById('upgrade-cost').textContent = "Upgrade: " + (tower.level * 50) + "g";
+            document.getElementById('tower-level').textContent = "Level: " + tower.level;
+           
+            if (tower.type === 'ice') {
+                document.getElementById('tower-damage').textContent = "Slow: " + (tower.slow * 100) + "%";
+            } else {
+                document.getElementById('tower-damage').textContent = "Dmg: " + tower.damage;
+            }
+        }
+
+        // Upgrade tower
+        function upgradeTower() {
+            if (!gameState.selectedTower || gameState.gameOver) return;
+           
+            const tower = gameState.selectedTower;
+            const cost = tower.level * 50;
+           
+            if (gameState.gold < cost) return;
+           
+            // Deduct gold
+            gameState.gold -= cost;
+            document.getElementById('gold').textContent = gameState.gold;
+           
+            // Upgrade tower
+            tower.level++;
+            tower.damage = Math.floor(tower.damage * 1.3);
+            tower.range = Math.floor(tower.range * 1.1);
+            tower.fireRate = Math.floor(tower.fireRate * 0.9);
+           
+            if (tower.slow) {
+                tower.slow = Math.min(tower.slow * 1.1, 0.8);
+            }
+           
+            // Update range element
+            tower.rangeElement.style.width = (tower.range * 2) + 'px';
+            tower.rangeElement.style.height = (tower.range * 2) + 'px';
+           
+            // Update UI
+            document.getElementById('upgrade-cost').textContent = "Upgrade: " + (tower.level * 50) + "g";
+            document.getElementById('tower-level').textContent = "Level: " + tower.level;
+           
+            if (tower.type === 'ice') {
+                document.getElementById('tower-damage').textContent = "Slow: " + (tower.slow * 100) + "%";
+            } else {
+                document.getElementById('tower-damage').textContent = "Dmg: " + tower.damage;
+            }
+           
+            // Visual feedback
+            tower.element.classList.add('pulse');
+            setTimeout(() => {
+                tower.element.classList.remove('pulse');
+            }, 500);
+        }
+
+        // Sell tower
+        function sellTower() {
+            if (!gameState.selectedTower || gameState.gameOver) return;
+           
+            const tower = gameState.selectedTower;
+           
+            // Refund gold (70% of original cost + upgrades)
+            const refund = Math.floor((towerTypes[tower.type].cost + (tower.level - 1) * 50) * 0.7);
+            gameState.gold += refund;
+            document.getElementById('gold').textContent = gameState.gold;
+           
+            // Remove tower
+            tower.element.remove();
+            tower.rangeElement.remove();
+            gameState.towers = gameState.towers.filter(t => t !== tower);
+           
+            // Reset selection
+            gameState.selectedTower = null;
+            document.getElementById('selected-tower').textContent = "No tower selected";
+            document.getElementById('upgrade-cost').textContent = "-";
+            document.getElementById('tower-level').textContent = "Level: -";
+            document.getElementById('tower-damage').textContent = "Dmg: -";
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (gameState.gameOver) return;
+           
+            updateEnemies();
+            updateTowers();
+            updateProjectiles();
+           
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize event listeners
+        function initEventListeners() {
+            // Start wave button
+            document.getElementById('start-wave-btn').addEventListener('click', startWave);
+           
+            // Upgrade button
+            document.getElementById('upgrade-btn').addEventListener('click', upgradeTower);
+           
+            // Sell button
+            document.getElementById('sell-btn').addEventListener('click', sellTower);
+           
+            // Restart button
+            document.getElementById('restart-btn').addEventListener('click', initGame);
+           
+            // Tower selection
+            document.querySelectorAll('.tower-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    // Toggle selection
+                    document.querySelectorAll('.tower-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                   
+                    option.classList.add('selected');
+                    gameState.selectedTowerType = option.dataset.tower;
+                    gameState.buildMode = true;
+                });
+            });
+           
+            // Game board click for tower placement
+            document.getElementById('game-board').addEventListener('click', placeTower);
+        }
+
+        // Initialize game
+        window.onload = function() {
+            initGame();
+            initEventListeners();
+            gameLoop();
+        };
+    </script>
+</body>
+</html>

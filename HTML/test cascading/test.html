@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Circulaire CSS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Version alternative avec décalages progressifs */
+        .alternative-carousel {
+            margin-top: 100px;
+        }
+
+        .alt-card {
+            width: 180px;
+            height: 220px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            animation: altCarousel 6s infinite ease-in-out;
+            position: absolute;
+        }
+
+        .alt-card:nth-child(1) {
+            animation-delay: 0s;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+        .alt-card:nth-child(2) {
+            animation-delay: 1.2s;
+            background: linear-gradient(135deg, #48c78e, #00d1b2);
+        }
+        .alt-card:nth-child(3) {
+            animation-delay: 2.4s;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .alt-card:nth-child(4) {
+            animation-delay: 3.6s;
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+        }
+        .alt-card:nth-child(5) {
+            animation-delay: 4.8s;
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        }
+
+        @keyframes altCarousel {
+            0%{
+                transform: translateX(-125px) scale(0.85);
+                opacity: 0.6;
+                z-index: 2;
+            }
+            25% {
+                transform: translateX(-125px) scale(0.85);
+                opacity: 0.6;
+                z-index: 2;
+            }
+            50% {
+                transform: translateX(0) scale(1) ;
+                opacity: 1;
+                z-index: 3;
+            }
+            75% {
+                transform: translateX(125px) scale(0.85);
+                opacity: 0.9;
+                z-index: 2;
+            }
+            100% {
+                transform: translateX(125px) scale(0.85);
+                opacity: 0.9;
+                z-index: 2;
+            }
+
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Version alternative -->
+    <div class="carousel-container alternative-carousel">
+        <div class="alt-card">
+        </div>
+        <div class="alt-card">
+        </div>
+        <div class="alt-card">
+        </div>
+        <div class="alt-card">
+        </div>
+        <div class="alt-card">
+        </div>
+    </div>
+</body>
+</html>

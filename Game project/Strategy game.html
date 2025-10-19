@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kingdom Conquest - RTS Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+       
+        body {
+            background: linear-gradient(135deg, #0d3b66, #1a2a6c, #0d3b66);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            overflow: hidden;
+        }
+       
+        .game-container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 20px;
+        }
+       
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            margin-bottom: 20px;
+        }
+       
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(to right, #ffd700, #ff8c00);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+       
+        .subtitle {
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+       
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: #0d3b66;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            grid-column: 1;
+        }
+       
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+       
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+       
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+       
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 30, 60, 0.5);
+            border-radius: 10px;
+        }
+       
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 5px 0;
+        }
+       
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a0c4ff;
+        }
+       
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+       
+        .control-btn {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: #0f0c29;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 100, 255, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+       
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 200, 255, 0.6);
+        }
+       
+        .control-btn:active {
+            transform: translateY(1px);
+        }
+       
+        .control-btn i {
+            font-size: 1.5rem;
+        }
+       
+        .unit-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+       
+        .unit-panel h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 10px;
+        }
+       
+        .unit-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+       
+        .unit-item {
+            background: rgba(30, 60, 100, 0.6);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+       
+        .unit-item:hover {
+            background: rgba(50, 100, 150, 0.7);
+            border-color: #ffd700;
+        }
+       
+        .unit-item.selected {
+            border-color: #ffd700;
+            background: rgba(70, 130, 180, 0.8);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+       
+        .unit-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: #ffd700;
+        }
+       
+        .unit-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+       
+        .unit-cost {
+            font-size: 0.8rem;
+            color: #a0c4ff;
+        }
+       
+        .build-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+       
+        .build-panel h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 10px;
+        }
+       
+        .build-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+       
+        .build-option {
+            background: rgba(30, 60, 100, 0.6);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+       
+        .build-option:hover {
+            background: rgba(50, 100, 150, 0.7);
+            border-color: #ffd700;
+        }
+       
+        .build-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: #ffd700;
+        }
+       
+        .build-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+       
+        .build-cost {
+            font-size: 0.8rem;
+            color: #a0c4ff;
+        }
+       
+        .game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 100;
+            border: 3px solid #ffd700;
+            display: none;
+        }
+       
+        .game-message h2 {
+            font-size: 2.5rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+       
+        .game-message p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #a0c4ff;
+        }
+       
+        .minimap {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            height: 150px;
+        }
+       
+        .minimap h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+       
+        #minimap-canvas {
+            width: 100%;
+            height: 100px;
+            background: #0d3b66;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+       
+        @media (max-width: 1000px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+           
+            .game-area {
+                height: 500px;
+            }
+        }
+       
+        @media (max-width: 600px) {
+            .stats, .controls {
+                grid-template-columns: 1fr;
+            }
+           
+            .unit-list, .build-options {
+                grid-template-columns: 1fr;
+            }
+           
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+       
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+       
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1><i class="fas fa-crown"></i> KINGDOM CONQUEST</h1>
+            <p class="subtitle">Build your empire, command your army, conquer the realm!</p>
+        </header>
+       
+        <div class="game-area">
+            <canvas id="game-canvas" width="800" height="600"></canvas>
+            <div class="game-message" id="game-message">
+                <h2 id="message-title">Game Over</h2>
+                <p id="message-content">Your kingdom has fallen to the enemy forces.</p>
+                <button class="control-btn" id="restart-btn"><i class="fas fa-redo"></i> Restart Game</button>
+            </div>
+        </div>
+       
+        <div class="sidebar">
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">Gold</div>
+                    <div class="stat-value" id="gold">500</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Wood</div>
+                    <div class="stat-value" id="wood">500</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Food</div>
+                    <div class="stat-value" id="food">100</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Population</div>
+                    <div class="stat-value" id="population">10/100</div>
+                </div>
+            </div>
+           
+            <div class="controls">
+                <button class="control-btn" id="gather-btn"><i class="fas fa-tree"></i> Gather</button>
+                <button class="control-btn" id="attack-btn"><i class="fas fa-crosshairs"></i> Attack</button>
+                <button class="control-btn" id="move-btn"><i class="fas fa-arrows-alt"></i> Move</button>
+                <button class="control-btn" id="stop-btn"><i class="fas fa-hand-paper"></i> Stop</button>
+            </div>
+           
+            <div class="unit-panel">
+                <h2><i class="fas fa-users"></i> Units</h2>
+                <div class="unit-list">
+                    <div class="unit-item" data-unit="villager">
+                        <div class="unit-icon"><i class="fas fa-user"></i></div>
+                        <div class="unit-name">Villager</div>
+                        <div class="unit-cost">50 Food</div>
+                    </div>
+                    <div class="unit-item" data-unit="soldier">
+                        <div class="unit-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div class="unit-name">Soldier</div>
+                        <div class="unit-cost">50 Gold</div>
+                    </div>
+                    <div class="unit-item" data-unit="archer">
+                        <div class="unit-icon"><i class="fas fa-bow-arrow"></i></div>
+                        <div class="unit-name">Archer</div>
+                        <div class="unit-cost">75 Gold</div>
+                    </div>
+                    <div class="unit-item" data-unit="knight">
+                        <div class="unit-icon"><i class="fas fa-horse"></i></div>
+                        <div class="unit-name">Knight</div>
+                        <div class="unit-cost">100 Gold</div>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="build-panel">
+                <h2><i class="fas fa-hammer"></i> Buildings</h2>
+                <div class="build-options">
+                    <div class="build-option" data-building="townhall">
+                        <div class="build-icon"><i class="fas fa-home"></i></div>
+                        <div class="build-name">Town Hall</div>
+                        <div class="build-cost">200 Wood</div>
+                    </div>
+                    <div class="build-option" data-building="barracks">
+                        <div class="build-icon"><i class="fas fa-chess-rook"></i></div>
+                        <div class="build-name">Barracks</div>
+                        <div class="build-cost">150 Wood</div>
+                    </div>
+                    <div class="build-option" data-building="farm">
+                        <div class="build-icon"><i class="fas fa-wheat-alt"></i></div>
+                        <div class="build-name">Farm</div>
+                        <div class="build-cost">100 Wood</div>
+                    </div>
+                    <div class="build-option" data-building="tower">
+                        <div class="build-icon"><i class="fas fa-tower-observation"></i></div>
+                        <div class="build-name">Watch Tower</div>
+                        <div class="build-cost">125 Wood</div>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="minimap">
+                <h2><i class="fas fa-map"></i> Mini Map</h2>
+                <canvas id="minimap-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            gold: 500,
+            wood: 500,
+            food: 100,
+            population: 10,
+            maxPopulation: 100,
+            gameOver: false,
+            selectedUnits: [],
+            selectedBuilding: null,
+            buildings: [],
+            units: [],
+            enemies: [],
+            resources: [],
+            currentAction: null,
+            selectedUnitType: null,
+            selectedBuildingType: null
+        };
+
+        // Canvas setup
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const minimapCanvas = document.getElementById('minimap-canvas');
+        const minimapCtx = minimapCanvas.getContext('2d');
+       
+        // Initialize canvas sizes
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        minimapCanvas.width = minimapCanvas.offsetWidth;
+        minimapCanvas.height = minimapCanvas.offsetHeight;
+       
+        // Unit types
+        const unitTypes = {
+            villager: {
+                name: "Villager",
+                cost: { food: 50 },
+                health: 50,
+                speed: 2,
+                damage: 5,
+                range: 30,
+                color: "#3498db",
+                icon: "fas fa-user"
+            },
+            soldier: {
+                name: "Soldier",
+                cost: { gold: 50 },
+                health: 100,
+                speed: 1.5,
+                damage: 15,
+                range: 40,
+                color: "#2ecc71",
+                icon: "fas fa-shield-alt"
+            },
+            archer: {
+                name: "Archer",
+                cost: { gold: 75 },
+                health: 75,
+                speed: 1.8,
+                damage: 20,
+                range: 200,
+                color: "#9b59b6",
+                icon: "fas fa-bow-arrow"
+            },
+            knight: {
+                name: "Knight",
+                cost: { gold: 100 },
+                health: 150,
+                speed: 2.2,
+                damage: 30,
+                range: 50,
+                color: "#e74c3c",
+                icon: "fas fa-horse"
+            }
+        };
+       
+        // Building types
+        const buildingTypes = {
+            townhall: {
+                name: "Town Hall",
+                cost: { wood: 200 },
+                health: 500,
+                width: 120,
+                height: 120,
+                color: "#f39c12",
+                icon: "fas fa-home"
+            },
+            barracks: {
+                name: "Barracks",
+                cost: { wood: 150 },
+                health: 300,
+                width: 100,
+                height: 80,
+                color: "#27ae60",
+                icon: "fas fa-chess-rook"
+            },
+            farm: {
+                name: "Farm",
+                cost: { wood: 100 },
+                health: 200,
+                width: 100,
+                height: 100,
+                color: "#2ecc71",
+                icon: "fas fa-wheat-alt"
+            },
+            tower: {
+                name: "Watch Tower",
+                cost: { wood: 125 },
+                health: 250,
+                width: 80,
+                height: 120,
+                color: "#3498db",
+                icon: "fas fa-tower-observation"
+            }
+        };
+       
+        // Initialize game
+        function initGame() {
+            gameState.gold = 500;
+            gameState.wood = 500;
+            gameState.food = 100;
+            gameState.population = 10;
+            gameState.maxPopulation = 100;
+            gameState.gameOver = false;
+            gameState.selectedUnits = [];
+            gameState.selectedBuilding = null;
+            gameState.buildings = [];
+            gameState.units = [];
+            gameState.enemies = [];
+            gameState.resources = [];
+            gameState.currentAction = null;
+            gameState.selectedUnitType = null;
+            gameState.selectedBuildingType = null;
+           
+            document.getElementById('gold').textContent = gameState.gold;
+            document.getElementById('wood').textContent = gameState.wood;
+            document.getElementById('food').textContent = gameState.food;
+            document.getElementById('population').textContent = `${gameState.population}/${gameState.maxPopulation}`;
+            document.getElementById('game-message').style.display = 'none';
+           
+            // Create initial units
+            for (let i = 0; i < 5; i++) {
+                createUnit('villager', 80 + i *50, 80);
+            }
+           
+            for (let i = 0; i < 3; i++) {
+                createUnit('soldier', 80 + i * 50, 200);
+            }
+           
+            // Create initial buildings
+            createBuilding('townhall', canvas.width / 2 - 60, canvas.height - 150);
+           
+            // Create resources
+            createResources();
+           
+            // Create enemies
+            createEnemies();
+           
+            // Start game loop
+            requestAnimationFrame(gameLoop);
+        }
+       
+        // Create a unit
+        function createUnit(type, x, y) {
+            if (gameState.population >= gameState.maxPopulation) return;
+           
+            const unitType = unitTypes[type];
+            let canAfford = true;
+           
+            // Check cost
+            for (const resource in unitType.cost) {
+                if (gameState[resource] < unitType.cost[resource]) {
+                    canAfford = false;
+                    break;
+                }
+            }
+           
+            if (!canAfford) return;
+           
+            // Pay cost
+            for (const resource in unitType.cost) {
+                gameState[resource] -= unitType.cost[resource];
+            }
+           
+            // Create unit
+            const unit = {
+                type: type,
+                x: x,
+                y: y,
+                health: unitType.health,
+                maxHealth: unitType.health,
+                target: null,
+                action: "idle",
+                color: unitType.color,
+                icon: unitType.icon
+            };
+           
+            gameState.units.push(unit);
+            gameState.population++;
+           
+            // Update UI
+            updateResourceUI();
+        }
+       
+        // Create a building
+        function createBuilding(type, x, y) {
+            const buildingType = buildingTypes[type];
+            let canAfford = true;
+           
+            // Check cost
+            for (const resource in buildingType.cost) {
+                if (gameState[resource] < buildingType.cost[resource]) {
+                    canAfford = false;
+                    break;
+                }
+            }
+           
+            if (!canAfford) return;
+           
+            // Pay cost
+            for (const resource in buildingType.cost) {
+                gameState[resource] -= buildingType.cost[resource];
+            }
+           
+            // Create building
+            const building = {
+                type: type,
+                x: x,
+                y: y,
+                width: buildingType.width,
+                height: buildingType.height,
+                health: buildingType.health,
+                maxHealth: buildingType.health,
+                color: buildingType.color,
+                icon: buildingType.icon
+            };
+           
+            gameState.buildings.push(building);
+           
+            // Update UI
+            updateResourceUI();
+        }
+       
+        // Create resources
+        function createResources() {
+            // Create trees
+            for (let i = 0; i < 8; i++) {
+                gameState.resources.push({
+                    type: "tree",
+                    x: 50 + Math.random() * 200,
+                    y: 400 + Math.random() * 150,
+                    amount: 100
+                });
+            }
+           
+            // Create gold mines
+            for (let i = 0; i < 4; i++) {
+                gameState.resources.push({
+                    type: "gold",
+                    x: 600 + Math.random() * 200,
+                    y: 100 + Math.random() * 150,
+                    amount: 200
+                });
+            }
+        }
+       
+        // Create enemies
+        function createEnemies() {
+            // Create enemy soldiers
+            for (let i = 0; i < 5; i++) {
+                gameState.enemies.push({
+                    type: "soldier",
+                    x: canvas.width - 150 - i * 40,
+                    y: 100,
+                    health: 100,
+                    maxHealth: 100,
+                    target: null,
+                    action: "idle",
+                    color: "#c0392b"
+                });
+            }
+           
+            // Create enemy knights
+            for (let i = 0; i < 3; i++) {
+                gameState.enemies.push({
+                    type: "knight",
+                    x: canvas.width - 150 - i * 60,
+                    y: 200,
+                    health: 150,
+                    maxHealth: 150,
+                    target: null,
+                    action: "idle",
+                    color: "#8e44ad"
+                });
+            }
+        }
+       
+        // Update resource UI
+        function updateResourceUI() {
+            document.getElementById('gold').textContent = gameState.gold;
+            document.getElementById('wood').textContent = gameState.wood;
+            document.getElementById('food').textContent = gameState.food;
+            document.getElementById('population').textContent = `${gameState.population}/${gameState.maxPopulation}`;
+        }
+       
+        // Game over
+        function gameOver() {
+            gameState.gameOver = true;
+            const message = document.getElementById('game-message');
+            message.style.display = 'block';
+            document.getElementById('message-title').textContent = "Game Over";
+            document.getElementById('message-content').textContent = "Your kingdom has fallen to the enemy forces.";
+        }
+       
+        // Game loop
+        function gameLoop() {
+            if (gameState.gameOver) return;
+           
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+           
+            // Draw background
+            drawBackground();
+           
+            // Draw resources
+            drawResources();
+           
+            // Draw buildings
+            drawBuildings();
+           
+            // Draw enemies
+            drawEnemies();
+           
+            // Draw units
+            drawUnits();
+           
+            // Draw selection
+            drawSelection();
+           
+            // Draw minimap
+            drawMinimap();
+           
+            // Process unit actions
+            processUnitActions();
+           
+            // Process enemy AI
+            processEnemyAI();
+           
+            // Continue game loop
+            requestAnimationFrame(gameLoop);
+        }
+       
+        // Draw background
+        function drawBackground() {
+            // Draw grass
+            ctx.fillStyle = "#2c7744";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+           
+            // Draw dirt path
+            ctx.fillStyle = "#8b4513";
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width / 3, canvas.height / 2);
+            ctx.lineTo(canvas.width / 3, canvas.height - 100);
+            ctx.lineTo(canvas.width, canvas.height - 100);
+            ctx.strokeStyle = "#5d2906";
+            ctx.lineWidth = 40;
+            ctx.stroke();
+        }
+       
+        // Draw resources
+        function drawResources() {
+            gameState.resources.forEach(resource => {
+                if (resource.type === "tree") {
+                    // Draw tree trunk
+                    ctx.fillStyle = "#5d2906";
+                    ctx.fillRect(resource.x, resource.y, 15, 40);
+                   
+                    // Draw tree leaves
+                    ctx.fillStyle = "#2e8b57";
+                    ctx.beginPath();
+                    ctx.arc(resource.x + 8, resource.y - 10, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (resource.type === "gold") {
+                    // Draw gold mine
+                    ctx.fillStyle = "#daa520";
+                    ctx.beginPath();
+                    ctx.arc(resource.x, resource.y, 25, 0, Math.PI * 2);
+                    ctx.fill();
+                   
+                    // Draw gold sparkles
+                    ctx.fillStyle = "#ffd700";
+                    ctx.beginPath();
+                    ctx.arc(resource.x - 10, resource.y - 5, 5, 0, Math.PI * 2);
+                    ctx.arc(resource.x + 10, resource.y + 5, 7, 0, Math.PI * 2);
+                    ctx.arc(resource.x + 5, resource.y - 10, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+       
+        // Draw buildings
+        function drawBuildings() {
+            gameState.buildings.forEach(building => {
+                ctx.fillStyle = building.color;
+                ctx.fillRect(building.x, building.y, building.width, building.height);
+               
+                // Draw building details
+                ctx.fillStyle = "#000";
+                ctx.fillRect(building.x + 10, building.y + 10, 20, 30);
+                ctx.fillRect(building.x + building.width - 30, building.y + 10, 20, 30);
+               
+                // Draw building icon
+                ctx.font = "30px FontAwesome";
+                ctx.fillText(building.icon, building.x + building.width/2 - 15, building.y + building.height/2 + 10);
+               
+                // Draw health bar
+                const healthPercent = (building.health / building.maxHealth) * 100;
+                ctx.fillStyle = "#555";
+                ctx.fillRect(building.x, building.y - 10, building.width, 5);
+                ctx.fillStyle = healthPercent > 70 ? "#4caf50" : healthPercent > 30 ? "#ff9800" : "#f44336";
+                ctx.fillRect(building.x, building.y - 10, building.width * (healthPercent / 100), 5);
+            });
+        }
+       
+        // Draw enemies
+        function drawEnemies() {
+            gameState.enemies.forEach(enemy => {
+                ctx.fillStyle = enemy.color;
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, 20, 0, Math.PI * 2);
+                ctx.fill();
+               
+                // Draw enemy icon
+                ctx.fillStyle = "#fff";
+                ctx.font = "20px FontAwesome";
+                ctx.fillText("✘", enemy.x - 8, enemy.y + 8);
+               
+                // Draw health bar
+                const healthPercent = (enemy.health / enemy.maxHealth) * 100;
+                ctx.fillStyle = "#555";
+                ctx.fillRect(enemy.x - 25, enemy.y - 30, 50, 5);
+                ctx.fillStyle = healthPercent > 70 ? "#4caf50" : healthPercent > 30 ? "#ff9800" : "#f44336";
+                ctx.fillRect(enemy.x - 25, enemy.y - 30, 50 * (healthPercent / 100), 5);
+            });
+        }
+       
+        // Draw units
+        function drawUnits() {
+            gameState.units.forEach(unit => {
+                ctx.fillStyle = unit.color;
+                ctx.beginPath();
+                ctx.arc(unit.x, unit.y, 15, 0, Math.PI * 2);
+                ctx.fill();
+               
+                // Draw unit icon
+                ctx.fillStyle = "#fff";
+                ctx.font = "20px FontAwesome";
+                ctx.fillText(unit.icon, unit.x - 8, unit.y + 8);
+               
+                // Draw health bar
+                const healthPercent = (unit.health / unit.maxHealth) * 100;
+                ctx.fillStyle = "#555";
+                ctx.fillRect(unit.x - 20, unit.y - 25, 40, 4);
+                ctx.fillStyle = healthPercent > 70 ? "#4caf50" : healthPercent > 30 ? "#ff9800" : "#f44336";
+                ctx.fillRect(unit.x - 20, unit.y - 25, 40 * (healthPercent / 100), 4);
+            });
+        }
+       
+        // Draw selection
+        function drawSelection() {
+            gameState.selectedUnits.forEach(unit => {
+                ctx.strokeStyle = "#ffd700";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(unit.x, unit.y, 20, 0, Math.PI * 2);
+                ctx.stroke();
+            });
+           
+            if (gameState.selectedBuilding) {
+                ctx.strokeStyle = "#ffd700";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(
+                    gameState.selectedBuilding.x - 5,
+                    gameState.selectedBuilding.y - 5,
+                    gameState.selectedBuilding.width + 10,
+                    gameState.selectedBuilding.height + 10
+                );
+            }
+        }
+       
+        // Draw minimap
+        function drawMinimap() {
+            minimapCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+           
+            // Draw background
+            minimapCtx.fillStyle = "#2c7744";
+            minimapCtx.fillRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+           
+            // Scale factor
+            const scaleX = minimapCanvas.width / canvas.width;
+            const scaleY = minimapCanvas.height / canvas.height;
+           
+            // Draw buildings
+            gameState.buildings.forEach(building => {
+                minimapCtx.fillStyle = building.color;
+                minimapCtx.fillRect(
+                    building.x * scaleX,
+                    building.y * scaleY,
+                    building.width * scaleX,
+                    building.height * scaleY
+                );
+            });
+           
+            // Draw resources
+            gameState.resources.forEach(resource => {
+                if (resource.type === "tree") {
+                    minimapCtx.fillStyle = "#2e8b57";
+                } else {
+                    minimapCtx.fillStyle = "#daa520";
+                }
+                minimapCtx.beginPath();
+                minimapCtx.arc(resource.x * scaleX, resource.y * scaleY, 4, 0, Math.PI * 2);
+                minimapCtx.fill();
+            });
+           
+            // Draw enemies
+            gameState.enemies.forEach(enemy => {
+                minimapCtx.fillStyle = enemy.color;
+                minimapCtx.beginPath();
+                minimapCtx.arc(enemy.x * scaleX, enemy.y * scaleY, 3, 0, Math.PI * 2);
+                minimapCtx.fill();
+            });
+           
+            // Draw units
+            gameState.units.forEach(unit => {
+                minimapCtx.fillStyle = unit.color;
+                minimapCtx.beginPath();
+                minimapCtx.arc(unit.x * scaleX, unit.y * scaleY, 3, 0, Math.PI * 2);
+                minimapCtx.fill();
+            });
+        }
+       
+        // Process unit actions
+        function processUnitActions() {
+            // TODO: Implement unit movement, gathering, attacking, etc.
+        }
+       
+        // Process enemy AI
+        function processEnemyAI() {
+            // TODO: Implement enemy AI behavior
+        }
+       
+        // Initialize event listeners
+        function initEventListeners() {
+            // Unit selection
+            document.querySelectorAll('.unit-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    gameState.selectedUnitType = item.dataset.unit;
+                   
+                    // Update UI
+                    document.querySelectorAll('.unit-item').forEach(i => {
+                        i.classList.remove('selected');
+                    });
+                    item.classList.add('selected');
+                });
+            });
+           
+            // Building selection
+            document.querySelectorAll('.build-option').forEach(item => {
+                item.addEventListener('click', () => {
+                    gameState.selectedBuildingType = item.dataset.building;
+                   
+                    // Update UI
+                    document.querySelectorAll('.build-option').forEach(i => {
+                        i.classList.remove('selected');
+                    });
+                    item.classList.add('selected');
+                });
+            });
+           
+            // Control buttons
+            document.getElementById('gather-btn').addEventListener('click', () => {
+                gameState.currentAction = 'gather';
+            });
+           
+            document.getElementById('attack-btn').addEventListener('click', () => {
+                gameState.currentAction = 'attack';
+            });
+           
+            document.getElementById('move-btn').addEventListener('click', () => {
+                gameState.currentAction = 'move';
+            });
+           
+            document.getElementById('stop-btn').addEventListener('click', () => {
+                gameState.currentAction = 'stop';
+                // Stop selected units
+                gameState.selectedUnits.forEach(unit => {
+                    unit.action = 'idle';
+                    unit.target = null;
+                });
+            });
+           
+            // Restart button
+            document.getElementById('restart-btn').addEventListener('click', initGame);
+           
+            // Canvas click for actions
+            canvas.addEventListener('click', (e) => {
+                if (gameState.gameOver) return;
+               
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+               
+                if (gameState.currentAction === 'move') {
+                    // Move selected units to this position
+                    gameState.selectedUnits.forEach(unit => {
+                        unit.target = { x, y };
+                        unit.action = 'moving';
+                    });
+                } else if (gameState.currentAction === 'attack') {
+                    // Attack enemy or building at this position
+                    // TODO: Implement attack targeting
+                } else if (gameState.currentAction === 'gather') {
+                    // Gather resources at this position
+                    // TODO: Implement resource gathering
+                } else {
+                    // Select units or buildings
+                    selectAtPosition(x, y);
+                }
+            });
+        }
+       
+        // Select units or buildings at position
+        function selectAtPosition(x, y) {
+            // Check for unit selection
+            const clickedUnit = gameState.units.find(unit => {
+                const dx = unit.x - x;
+                const dy = unit.y - y;
+                return Math.sqrt(dx * dx + dy * dy) <= 20;
+            });
+           
+            if (clickedUnit) {
+                gameState.selectedUnits = [clickedUnit];
+                gameState.selectedBuilding = null;
+                return;
+            }
+           
+            // Check for building selection
+            const clickedBuilding = gameState.buildings.find(building => {
+                return x >= building.x && x <= building.x + building.width &&
+                       y >= building.y && y <= building.y + building.height;
+            });
+           
+            if (clickedBuilding) {
+                gameState.selectedBuilding = clickedBuilding;
+                gameState.selectedUnits = [];
+                return;
+            }
+           
+            // Clicked on empty space - clear selection
+            gameState.selectedUnits = [];
+            gameState.selectedBuilding = null;
+        }
+       
+        // Initialize game
+        window.onload = function() {
+            initGame();
+            initEventListeners();
+        };
+    </script>
+</body>
+</html>
